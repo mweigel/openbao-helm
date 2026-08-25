@@ -53,12 +53,21 @@ jobs:
           git config user.name "$GITHUB_ACTOR"
           git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
 
+      - name: Import PGP Private Key
+        run: |
+          echo "${{ secrets.PGP_PRIVATE_KEY }}" | gpg --dearmor --output /tmp/keyring.gpg
+          echo "${{ secrets.PGP_KEY_PASSPHRASE }}" > /tmp/passphrase-file.txt
+
       - name: Run chart-releaser
         id: helm-release
         uses: helm/chart-releaser-action@cae68fefc6b5f367a0275617c9f83181ba54714f # v1.7.0
         env:
           CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
           CR_GENERATE_RELEASE_NOTES: true
+          CR_KEY: mario.weigel@gmail.com
+          CR_KEYRING: /tmp/keyring.gpg
+          CR_PASSPHRASE_FILE: /tmp/passphrase-file.txt
+          CR_SIGN: true
 
       - name: Login to GHCR
         uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3.6.0
