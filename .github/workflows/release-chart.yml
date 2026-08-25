@@ -26,11 +26,12 @@ jobs:
           url="https://api.github.com/repos/openbao/openbao-helm/releases/latest"
           latest_version=$(curl -sSfL -H "Authorization: Bearer ${GITHUB_TOKEN}" "$url" | jq -r '.tag_name' | sed 's/openbao-//')
 
-          if [ "$current_version" != "$latest_version" ]; then
-            echo "should_release=true"  >> "$GITHUB_OUTPUT"
-          else
-            echo "should_release=false" >> "$GITHUB_OUTPUT"
-          fi
+          echo "should_release=true"  >> "$GITHUB_OUTPUT"
+          # if [ "$current_version" != "$latest_version" ]; then
+          #   echo "should_release=true"  >> "$GITHUB_OUTPUT"
+          # else
+          #   echo "should_release=false" >> "$GITHUB_OUTPUT"
+          # fi
 
   release:
     needs: check-versions
