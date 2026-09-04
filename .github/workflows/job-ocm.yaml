@@ -66,9 +66,9 @@ jobs:
 
       - name: Create OCM component archive
         run: |
-          OPENBAO_REGISTRY=$(yq '.server.image.registry' ./charts/openbao/values.yaml)
-          OPENBAO_VERSION=$(yq '.appVersion | sub("v", "")' ./charts/openbao/Chart.yaml)
-          CHART_VERSION=$(yq '.version' ./charts/openbao/Chart.yaml)
+          OPENBAO_REGISTRY=ghcr.io
+          OPENBAO_VERSION=2.6.2
+          CHART_VERSION=0.29.5
           OPENBAO_CSI_VERSION=$(yq '.csi.image.tag' ./charts/openbao/values.yaml)
           INJECTOR_REGISTRY=$(yq '.injector.image.registry' ./charts/openbao/values.yaml)
           INJECTOR_REPOSITORY=$(yq '.injector.image.repository' ./charts/openbao/values.yaml)
