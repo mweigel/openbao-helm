@@ -54,6 +54,7 @@ jobs:
           git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
 
       - name: Import PGP Private Key
+        if: ${{ secrets.PGP_PRIVATE_KEY != '' }}
         run: |
           echo "${{ secrets.PGP_PRIVATE_KEY }}" | gpg --dearmor --output /tmp/keyring.gpg
           echo "${{ secrets.PGP_KEY_PASSPHRASE }}" > /tmp/passphrase-file.txt
@@ -67,7 +68,7 @@ jobs:
           CR_KEY: mario.weigel@gmail.com
           CR_KEYRING: /tmp/keyring.gpg
           CR_PASSPHRASE_FILE: /tmp/passphrase-file.txt
-          CR_SIGN: true
+          CR_SIGN: ${{ secrets.PGP_PRIVATE_KEY != '' }}
 
       - name: Login to GHCR
         uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3.6.0
