@@ -14,7 +14,7 @@ jobs:
 
       - name: Setup ocm-cli
         run: |
-          VERSION="0.26.0"
+          VERSION="0.48.0"
           ARCHIVE_FILE="ocm-${VERSION}-linux-amd64.tar.gz"
           URL="https://github.com/open-component-model/ocm/releases/download/v${VERSION}/$ARCHIVE_FILE"
 
@@ -88,10 +88,6 @@ jobs:
                             INJECTOR_VERSION=${INJECTOR_VERSION}
 
       - name: Sign OCM component version
-        if: ${{ env.GPG_KEY && env.GPG_PASSPHRASE }}
-        env:
-          GPG_KEY: ${{ secrets.PGP_PRIVATE_KEY }}
-          GPG_PASSPHRASE: ${{ secrets.PGP_KEY_PASSPHRASE }}
         run: |
           CHART_VERSION=$(yq '.version' ./charts/openbao/Chart.yaml)
 
