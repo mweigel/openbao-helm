@@ -42,22 +42,22 @@ jobs:
                         password: ${{ secrets.GITHUB_TOKEN }}
           EOF
 
-      - name: Configure GPG signing credentials
-        if: ${{ env.GPG_KEY && env.GPG_PASSPHRASE }}
-        env:
-          GPG_KEY: ${{ secrets.PGP_PRIVATE_KEY }}
-          GPG_PASSPHRASE: ${{ secrets.PGP_KEY_PASSPHRASE }}
+      - name: Configure OCM signing credentials
         run: |
-          echo "${{ secrets.PGP_PRIVATE_KEY }}" > /tmp/ocm-pgp-key.asc
+          cat > .ocmconfig << 'EOF'
+          type: generic.config.ocm.software/v1
+          configurations:
+          - type: credentials.config.ocm.software
+            consumers:
+            - identity:
+                type: SigstoreSigner/v1alpha1
+                signature: default
+              credentials:
+              - type: OIDCIdentityTokenProvider/v1alpha1
+          EOF
 
-          cat <<EOF >> $HOME/.ocmconfig
-                - identity:
-                    type: GPG/v1alpha1
-                    signature: default
-                  credentials:
-                    - type: GPGCredentials/v1alpha1
-                      privateKeyPGPFile: /tmp/ocm-pgp-key.asc
-                      passphrase: "${{ secrets.PGP_KEY_PASSPHRASE }}"
+          cat > sigstore-sign.yaml << 'EOF'
+          type: SigstoreSigningConfiguration/v1alpha1
           EOF
 
       - name: Create Helm Chart archive
@@ -95,7 +95,10 @@ jobs:
         run: |
           CHART_VERSION=$(yq '.version' ./charts/openbao/Chart.yaml)
 
-          ocm sign componentversions ./ocm/transport.ctf//openbao.org/openbao:${CHART_VERSION}
+          ocm sign cv \
+            --config ./.ocmconfig
+            --signing-config sigstore-sign.yaml \
+            ./ocm/transport.ctf//openbao.org/openbao:${CHART_VERSION}
 
       - name: Push OCM artifact to OCI
         run: |
