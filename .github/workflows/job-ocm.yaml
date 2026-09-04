@@ -68,7 +68,7 @@ jobs:
         run: |
           OPENBAO_REGISTRY=ghcr.io
           OPENBAO_VERSION=2.6.2
-          CHART_VERSION=0.29.5
+          CHART_VERSION=0.29.6
           OPENBAO_CSI_VERSION=$(yq '.csi.image.tag' ./charts/openbao/values.yaml)
           INJECTOR_REGISTRY=$(yq '.injector.image.registry' ./charts/openbao/values.yaml)
           INJECTOR_REPOSITORY=$(yq '.injector.image.repository' ./charts/openbao/values.yaml)
