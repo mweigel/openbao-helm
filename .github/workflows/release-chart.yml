@@ -54,7 +54,10 @@ jobs:
           git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
 
       - name: Import PGP Private Key
-        if: ${{ secrets.PGP_PRIVATE_KEY != '' }}
+        if: ${{ env.GPG_KEY && env.GPG_PASSPHRASE }}
+        env:
+          GPG_KEY: ${{ secrets.PGP_PRIVATE_KEY }}
+          GPG_PASSPHRASE: ${{ secrets.PGP_KEY_PASSPHRASE }}
         run: |
           echo "${{ secrets.PGP_PRIVATE_KEY }}" | gpg --dearmor --output /tmp/keyring.gpg
           echo "${{ secrets.PGP_KEY_PASSPHRASE }}" > /tmp/passphrase-file.txt

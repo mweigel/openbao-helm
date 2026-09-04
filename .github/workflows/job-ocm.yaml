@@ -43,7 +43,10 @@ jobs:
           EOF
 
       - name: Configure GPG signing credentials
-        if: ${{ secrets.PGP_PRIVATE_KEY != '' }}
+        if: ${{ env.GPG_KEY && env.GPG_PASSPHRASE }}
+        env:
+          GPG_KEY: ${{ secrets.PGP_PRIVATE_KEY }}
+          GPG_PASSPHRASE: ${{ secrets.PGP_KEY_PASSPHRASE }}
         run: |
           echo "${{ secrets.PGP_PRIVATE_KEY }}" > /tmp/ocm-pgp-key.asc
 
@@ -85,7 +88,10 @@ jobs:
                             INJECTOR_VERSION=${INJECTOR_VERSION}
 
       - name: Sign OCM component version
-        if: ${{ secrets.PGP_PRIVATE_KEY != '' }}
+        if: ${{ env.GPG_KEY && env.GPG_PASSPHRASE }}
+        env:
+          GPG_KEY: ${{ secrets.PGP_PRIVATE_KEY }}
+          GPG_PASSPHRASE: ${{ secrets.PGP_KEY_PASSPHRASE }}
         run: |
           CHART_VERSION=$(yq '.version' ./charts/openbao/Chart.yaml)
 
