@@ -17,6 +17,47 @@ entries:
       charts.openshift.io/provider: OpenBao
     apiVersion: v2
     appVersion: v2.6.2
+    created: "2026-09-04T02:10:53.958860363Z"
+    description: Official OpenBao Chart
+    digest: 27d3664bfe800bc2f9449b36a06636f4400d6f43ebab18342dbaef5ef5d39e5e
+    home: https://github.com/openbao/openbao-helm
+    icon: https://raw.githubusercontent.com/openbao/artwork/refs/heads/main/color/openbao-color.svg
+    keywords:
+    - vault
+    - openbao
+    - security
+    - encryption
+    - secrets
+    - management
+    - automation
+    - infrastructure
+    kubeVersion: '>= 1.30.0-0'
+    maintainers:
+    - email: openbao-security@lists.openssf.org
+      name: OpenBao
+      url: https://openbao.org
+    name: openbao
+    sources:
+    - https://github.com/openbao/openbao-helm
+    urls:
+    - https://github.com/mweigel/openbao-helm/releases/download/openbao-0.29.4/openbao-0.29.4.tgz
+    version: 0.29.4
+  - annotations:
+      artifacthub.io/changes: |
+        - kind: security
+          description: |
+           chore: bump OpenBao to v2.6.2
+        - kind: changed
+          description: |
+           feat: Support matchConditions for agent-injector webhook
+        - kind: changed
+          description: |
+           chore: update OpenBao Snapshot Agent to 0.4.1
+      artifacthub.io/containsSecurityUpdates: "true"
+      charts.openshift.io/name: OpenBao
+      charts.openshift.io/provider: OpenBao
+    apiVersion: v2
+    appVersion: v2.6.2
     created: "2026-08-25T05:29:33.952842479Z"
     description: Official OpenBao Chart
     digest: f9cb9dc6f6ea2bd6fa52dc5d93ce4fa638c8655ea69834d55de3f9afe969888d
@@ -83,4 +124,4 @@ entries:
     urls:
     - https://github.com/mweigel/openbao-helm/releases/download/openbao-0.29.2/openbao-0.29.2.tgz
     version: 0.29.2
-generated: "2026-08-25T05:29:33.952854217Z"
+generated: "2026-09-04T02:10:53.958886482Z"
