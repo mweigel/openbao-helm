@@ -42,4 +42,45 @@ entries:
     urls:
     - https://github.com/mweigel/openbao-helm/releases/download/openbao-0.29.5/openbao-0.29.5.tgz
     version: 0.29.5
-generated: "2026-09-06T09:35:20.430283481Z"
+  - annotations:
+      artifacthub.io/changes: |
+        - kind: added
+          description: |
+            feat: Allow setting nodeSelector and affinity for snapshot-agent cronjob pod
+        - kind: changed
+          description: |
+            chore(snpashotAgent): update to v0.4.4
+        - kind: fixed
+          description: |
+            fix(chart): fix invalid yaml syntax in statefulset definition
+      artifacthub.io/containsSecurityUpdates: "false"
+      charts.openshift.io/name: OpenBao
+      charts.openshift.io/provider: OpenBao
+    apiVersion: v2
+    appVersion: v2.6.2
+    created: "2026-09-06T10:10:58.554972415Z"
+    description: Official OpenBao Chart
+    digest: 661f43abfd45b8fc0ee2a7431cd3f0c040aa2205c64b1a653f32ebbd04806369
+    home: https://github.com/openbao/openbao-helm
+    icon: https://raw.githubusercontent.com/openbao/artwork/refs/heads/main/color/openbao-color.svg
+    keywords:
+    - vault
+    - openbao
+    - security
+    - encryption
+    - secrets
+    - management
+    - automation
+    - infrastructure
+    kubeVersion: '>= 1.30.0-0'
+    maintainers:
+    - email: openbao-security@lists.openssf.org
+      name: OpenBao
+      url: https://openbao.org
+    name: openbao
+    sources:
+    - https://github.com/openbao/openbao-helm
+    urls:
+    - https://github.com/mweigel/openbao-helm/releases/download/openbao-0.29.4/openbao-0.29.4.tgz
+    version: 0.29.4
+generated: "2026-09-06T10:10:58.554986387Z"
