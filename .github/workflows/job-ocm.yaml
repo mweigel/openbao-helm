@@ -4,24 +4,23 @@ on: [workflow_call]
 jobs:
   ocm:
     runs-on: ubuntu-latest
-    permissions:
-      packages: write
     steps:
       - name: Checkout
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           fetch-depth: 0
 
+      - name: Determine chart version
+        run: echo "CHART_VERSION=$(yq '.version' ./charts/openbao/Chart.yaml)" >> "$GITHUB_ENV"
+
       - name: Setup ocm-cli
         run: |
-          VERSION="0.26.0"
-          ARCHIVE_FILE="ocm-${VERSION}-linux-amd64.tar.gz"
-          URL="https://github.com/open-component-model/ocm/releases/download/v${VERSION}/$ARCHIVE_FILE"
+          VERSION="0.14.0"
+          URL="https://github.com/open-component-model/open-component-model/releases/download/v${VERSION}/ocm-linux-amd64"
 
           echo "Installing ocm-cli version v${VERSION} from ${URL}"
 
-          curl -LsS -o ocm-cli.tgz "$URL"
-          tar --overwrite -xvzf ocm-cli.tgz -C /usr/local/bin
+          curl -LsS -o /usr/local/bin/ocm "$URL"
           chmod a+x /usr/local/bin/ocm
 
       - name: Write .ocmconfig
@@ -36,10 +35,20 @@ jobs:
                     scheme: https
                     hostname: ghcr.io
                   credentials:
-                    - type: Credentials
-                      properties:
-                        username: ${{ github.actor }}
-                        password: ${{ secrets.GITHUB_TOKEN }}
+                    - type: OCICredentials/v1
+                      username: ${{ github.actor }}
+                      password: ${{ secrets.GITHUB_TOKEN }}
+            - type: credentials.config.ocm.software
+              consumers:
+                - identity:
+                    type: SigstoreSigner/v1alpha1
+                    signature: default
+                  credentials:
+                  - type: OIDCIdentityToken/v1alpha1
+          EOF
+
+          cat <<EOF > $HOME/sigstore-sign.yaml
+          type: SigstoreSigningConfiguration/v1alpha1
           EOF
 
       - name: Create Helm Chart archive
@@ -48,29 +57,33 @@ jobs:
 
       - name: Create OCM component archive
         run: |
-          OPENBAO_REGISTRY=$(yq '.server.image.registry' ./charts/openbao/values.yaml)
-          OPENBAO_VERSION=$(yq '.appVersion | sub("v", "")' ./charts/openbao/Chart.yaml)
-          CHART_VERSION=$(yq '.version' ./charts/openbao/Chart.yaml)
-          OPENBAO_CSI_VERSION=$(yq '.csi.image.tag' ./charts/openbao/values.yaml)
-          INJECTOR_REGISTRY=$(yq '.injector.image.registry' ./charts/openbao/values.yaml)
-          INJECTOR_REPOSITORY=$(yq '.injector.image.repository' ./charts/openbao/values.yaml)
-          INJECTOR_VERSION=$(yq '.injector.image.tag' ./charts/openbao/values.yaml)
+          export COMPONENT_NAME="openbao.org/openbao"
+          export PROVIDER="openbao"
+          export OPENBAO_REGISTRY=$(yq '.server.image.registry' ./charts/openbao/values.yaml)
+          export OPENBAO_VERSION=$(yq '.appVersion | sub("v", "")' ./charts/openbao/Chart.yaml)
+          export OPENBAO_CHART_VERSION=$(yq '.version' ./charts/openbao/Chart.yaml)
+          export OPENBAO_CSI_VERSION=$(yq '.csi.image.tag' ./charts/openbao/values.yaml)
+          export INJECTOR_REGISTRY=$(yq '.injector.image.registry' ./charts/openbao/values.yaml)
+          export INJECTOR_REPOSITORY=$(yq '.injector.image.repository' ./charts/openbao/values.yaml)
+          export INJECTOR_VERSION=$(yq '.injector.image.tag' ./charts/openbao/values.yaml)
 
-          echo "Building OCM artifact for ${CHART_VERSION}"
+          echo "Building OCM artifact for ${OPENBAO_CHART_VERSION}"
 
-          ocm add componentversions --create --templater=go --file=ocm/transport.ctf ocm/component-constructor.yaml -- \
-                            COMPONENT_NAME="openbao.org/openbao" \
-                            PROVIDER="openbao" \
-                            OPENBAO_REGISTRY=${OPENBAO_REGISTRY} \
-                            OPENBAO_VERSION=${OPENBAO_VERSION} \
-                            OPENBAO_CHART_VERSION=${CHART_VERSION} \
-                            OPENBAO_CSI_VERSION=${OPENBAO_CSI_VERSION} \
-                            INJECTOR_REGISTRY=${INJECTOR_REGISTRY} \
-                            INJECTOR_REPOSITORY=${INJECTOR_REPOSITORY} \
-                            INJECTOR_VERSION=${INJECTOR_VERSION}
+          ocm add component-version --repository ctf::./ocm/transport.ctf --constructor ./ocm/component-constructor.yaml
+
+      - name: Sign OCM component version
+        run: |
+          ocm sign cv \
+            --config $HOME/.ocmconfig \
+            --signer-spec $HOME/sigstore-sign.yaml \
+            ctf::./ocm/transport.ctf//openbao.org/openbao:${CHART_VERSION}
 
       - name: Push OCM artifact to OCI
         run: |
-          OCI_REGISTRY="ghcr.io/openbao"
+          OCI_REGISTRY="ghcr.io/${GITHUB_REPOSITORY_OWNER}"
           echo "Pushing to ${OCI_REGISTRY} as user '${{ github.actor }}'"
-          ocm transfer ctf ./ocm/transport.ctf OCIRegistry::${OCI_REGISTRY}
+
+          ocm transfer component-version \
+            "ctf::./ocm/transport.ctf//openbao.org/openbao:${CHART_VERSION}" \
+            "${OCI_REGISTRY}" \
+            --copy-resources
