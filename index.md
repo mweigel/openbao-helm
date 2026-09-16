@@ -66,11 +66,9 @@ cosign verify \
 ### Open Component Model
 The [Open Component Model](https://ocm.software/) (OCM) artifact can be verified using Cosign.
 ```bash
-cat <<EOF > sigstore-verify.yaml
-type: SigstoreVerificationConfiguration/v1alpha1
-certificateOIDCIssuer: https://token.actions.githubusercontent.com
-certificateIdentity: https://github.com/openbao/openbao-helm/.github/workflows/job-ocm.yaml@refs/heads/main
-EOF
+ocm verify componentversions \
+    --keyless \
+    --signature default \
+    ghcr.io/openbao//openbao.org/openbao:0.29.4
 
-ocm verify cv --verifier-spec ./sigstore-verify.yaml ghcr.io/openbao/component-descriptors/openbao.org/openbao:0.29.4
 ```
