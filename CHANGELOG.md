@@ -1,5 +1,8 @@
 ## Unreleased
 
+- feat: Sign Helm charts using GPG
+- feat: Sign Helm OCI images using Cosign keyless
+
 ## 0.29.4
 
 - feat: Allow setting nodeSelector and affinity for snapshot-agent cronjob pod
