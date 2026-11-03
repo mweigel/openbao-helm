@@ -62,6 +62,11 @@ jobs:
           passphrase: ${{ secrets.GPG_PASSWORD }}
           fingerprint: ${{ vars.GPG_SIGNING_SUBKEY }}
 
+      - name: Display GPG key fingerprint
+        run: |
+          echo ${{ steps.gpg-import.outputs.fingerprint }}
+          echo $GPG_SIGNING_SUBKEY
+
       # Helm doesn't support signing charts with a specific GPG subkey directly. Manually create
       # the same provenance format `helm package --sign` produces so it can be signed using GPG
       # and the correct signing subkey.
